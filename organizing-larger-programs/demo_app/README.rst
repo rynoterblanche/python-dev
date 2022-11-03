@@ -1,0 +1,1 @@
+a clean approach to organizing a project with extendable packages

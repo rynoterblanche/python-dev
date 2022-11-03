@@ -1,1 +1,0 @@
-simple demo of a clean approach to organizing packages
