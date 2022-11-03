@@ -1,8 +1,14 @@
-from demo_app.workers import cloud, on_prem
+import pkg_resources
+
+worker_plugins = {
+    entry_point.load()
+    for entry_point
+    in pkg_resources.iter_entry_points('demo_app.worker_plugins')
+}
 
 platform_map = {
-    'config.onprem': cloud.worker,
-    'config.cloud': on_prem.worker
+    module.config: module.worker
+    for module in worker_plugins
 }
 
 

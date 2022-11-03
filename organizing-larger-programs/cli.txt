@@ -1,0 +1,15 @@
+cd demo_app
+python setup.py install
+
+cd ../demo_app_cloud
+python setup.py install
+
+cd ../demo_app_onprem
+python setup.py install
+
+cd ..
+python -m demo_app config.cloud
+Started cloud worker
+
+python -m demo_app config.onprem
+Started on-prem worker
