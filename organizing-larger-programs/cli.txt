@@ -1,0 +1,8 @@
+# execute a package as a module
+
+python -m demo_app config.cloud
+Started cloud worker
+
+python -m demo_app config.onprem
+Started on-prem worker
+
