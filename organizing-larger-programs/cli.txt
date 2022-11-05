@@ -1,0 +1,12 @@
+# install wheel
+pip install wheel
+
+# create distribution
+cd demo_app
+python setup.py bdist_wheel
+
+# list distributions
+ls dist
+
+# install package
+pip install dist/demo_app-1.0.0-py3-none-any.whl
