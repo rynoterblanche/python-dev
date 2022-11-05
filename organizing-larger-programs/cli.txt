@@ -1,0 +1,7 @@
+# create a source distribution
+cd demo_app
+python setup.py sdist
+
+# install created distribution
+cd dist
+pip install demo_app-1.0.0.tar.gz
