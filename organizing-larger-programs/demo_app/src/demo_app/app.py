@@ -1,8 +1,8 @@
 from demo_app.workers import cloud, on_prem
 
 platform_map = {
-    'config.onprem': cloud.worker,
-    'config.cloud': on_prem.worker
+    'config.onprem': on_prem.worker,
+    'config.cloud': cloud.worker
 }
 
 
