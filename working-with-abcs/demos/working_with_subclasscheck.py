@@ -2,13 +2,16 @@ import unittest
 
 
 class SinkMeta(type):
-    """Customizing issubclass and isinstance requires careful consideration to get consistent semantics.
+    """
+    Customizing 'issubclass' and 'isinstance' requires careful consideration to ensure consistent semantics in
+    your code.
 
-    This is an awkward technique that can introduce subclass relations on unknowing classes. It is however used for
-    many protocols in the Python Standard Library.
+    This is an awkward technique that retrospectively introduces subclass relations on unknowing classes. It is used
+    in many protocols in the Python Standard Library.
 
-    Overriding __instancecheck__ & __subclasscheck__ via a metaclass can quickly become tricky, but there are better
-    alternatives """
+    Overriding '__instancecheck__' &' __subclasscheck__' via a metaclass can quickly become tricky, but there are
+    better alternatives.
+    """
 
     def __instancecheck__(cls, instance):
         return issubclass(type(instance), cls)
@@ -25,11 +28,12 @@ class SinkMeta(type):
 
 
 class Sink(metaclass=SinkMeta):
-    """ABC"""
+    """Abstract Base Class"""
 
 
 class FileSink:
-    """Has no explicit inheritance relationship with Sink"""
+    """Has no explicit inheritance relationship with Sink, however SinkMeta metaclass creates a subclass
+     relationship to Sink"""
 
     def write(self):
         print("Writing to file!", type(self).__name__)
@@ -39,7 +43,8 @@ class FileSink:
 
 
 class ConsoleSink:
-    """Has no explicit inheritance relationship with Sink"""
+    """Has no explicit inheritance relationship with Sink, however SinkMeta metaclass creates a subclass
+     relationship to Sink"""
 
     def write(self):
         print("Writing to console!", type(self).__name__)
