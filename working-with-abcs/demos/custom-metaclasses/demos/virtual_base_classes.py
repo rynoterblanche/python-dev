@@ -3,14 +3,7 @@ import unittest
 
 class SinkMeta(type):
     """
-    Customizing 'issubclass' and 'isinstance' requires careful consideration to ensure consistent semantics in
-    your code.
-
-    This is an awkward technique that retrospectively introduces subclass relations on unknowing classes. It is used
-    in many protocols in the Python Standard Library.
-
-    Overriding '__instancecheck__' &' __subclasscheck__' via a metaclass can quickly become tricky, but there are
-    better alternatives.
+    A custom metaclass for Sink
     """
 
     def __instancecheck__(cls, instance):
@@ -97,10 +90,21 @@ class TestsIsInstanceOfSink(unittest.TestCase):
         self.assertFalse(isinstance(UnrelatedSink(), Sink))
 
 
-class TestsMroOfConsoleSink(unittest.TestCase):
-    """ you cannot invoke methods on virtual base classes via the MRO"""
+class TestFlushMroFromSinkSubClasses(unittest.TestCase):
 
-    def test_flush_raises_attribute_error(self):
+    def test_console_sink_cannot_flush(self):
+        """ ConsoleSink cannot invoke methods on virtual base classes via MRO"""
         cs = ConsoleSink()
         with self.assertRaises(AttributeError):
             cs.flush()
+
+    def test_file_sink_cannot_flush(self):
+        """ FileSink cannot invoke methods on virtual base classes via MRO"""
+        cs = FileSink()
+        with self.assertRaises(AttributeError):
+            cs.flush()
+
+    def test_api_sink_can_flush(self):
+        """ ApiSink directly inherits from Sink it and uses MRO to invoke 'flush' """
+        cs = ApiSink()
+        cs.flush()

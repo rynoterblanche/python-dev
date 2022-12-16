@@ -3,6 +3,8 @@ from collections.abc import Hashable
 
 
 class TestNonTransitiveSubclasses(unittest.TestCase):
+    """ This test just shows that non-transitive subclass relationships are possible """
+
     def test_object_issubclass_of_hashable(self):
         # object.__hash__ is not None
         self.assertIsNotNone(object.__hash__)
