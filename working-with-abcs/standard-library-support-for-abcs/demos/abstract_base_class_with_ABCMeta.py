@@ -3,7 +3,12 @@ from abc import ABCMeta
 
 
 class Sink(metaclass=ABCMeta):
-    """Abstract Base Class"""
+    """
+    Abstract Base Class
+
+    This base class uses ABCMeta and so must explicitly mention metaclass as well as override the '__subclasshook__'
+    in order to define its structure.
+    """
 
     @classmethod
     def __subclasshook__(cls, subclass):
