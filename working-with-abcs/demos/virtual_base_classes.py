@@ -1,32 +1,106 @@
 import unittest
-from collections.abc import Sized, Iterable, Iterator
 
 
-class MyCustomSized:
-    def __len__(self):
-        return 10
-
-
-class MyCustomIterator:
-    def __iter__(self):
-        return self
-
-    def __next__(self):
-        return "next"
-
-
-class TestIsInstance(unittest.TestCase):
+class SinkMeta(type):
     """
-    Abstract base classes can extend 'issubclass' and 'isinstance' mechanisms to enable structural (or duck) type
-    checks with subclasses. Virtual base classes like the ones from collections.abc can test for the implementation of
-    protocols in your custom subclasses, as shown in these tests.
+    Customizing 'issubclass' and 'isinstance' requires careful consideration to ensure consistent semantics in
+    your code.
+
+    This is an awkward technique that retrospectively introduces subclass relations on unknowing classes. It is used
+    in many protocols in the Python Standard Library.
+
+    Overriding '__instancecheck__' &' __subclasscheck__' via a metaclass can quickly become tricky, but there are
+    better alternatives.
     """
 
-    def test_MyCustomSized_is_instance_of_Sized(self):
-        self.assertIsInstance(MyCustomSized(), Sized)
+    def __instancecheck__(cls, instance):
+        return issubclass(type(instance), cls)
 
-    def test_MyCustomIterator_is_instance_of_Iterable(self):
-        self.assertIsInstance(MyCustomIterator(), Iterable)
+    def __subclasscheck__(self, subclass: type) -> bool:
+        if (
+                hasattr(subclass, "write") and callable(subclass.write)
+                and
+                hasattr(subclass, "load") and callable(subclass.load)
+        ):
+            return True
 
-    def test_MyCustomIterator_is_instance_of_Iterator(self):
-        self.assertIsInstance(MyCustomIterator(), Iterator)
+        return super().__subclasscheck__(subclass)
+
+
+class Sink(metaclass=SinkMeta):
+    """Abstract Base Class"""
+
+    def flush(self):
+        print("Flushing Sink!", type(self).__name__)
+
+
+class FileSink:
+    """Has no explicit inheritance relationship with Sink, however SinkMeta metaclass creates a subclass
+     relationship to Sink"""
+
+    def write(self):
+        print("Writing to file!", type(self).__name__)
+
+    def load(self):
+        print("loading", type(self).__name__)
+
+
+class ConsoleSink:
+    """Has no explicit inheritance relationship with Sink, however SinkMeta metaclass creates a subclass
+     relationship to Sink"""
+
+    def write(self):
+        print("Writing to console!", type(self).__name__)
+
+    def load(self):
+        print("loading", type(self).__name__)
+
+
+class ApiSink(Sink):
+    """Directly inherits from Sink"""
+
+
+class UnrelatedSink:
+    """Not a subclass of type Sink"""
+
+    def write_other(self):
+        print("Writing to other!", type(self).__name__)
+
+
+class TestsIsSubClassOfSink(unittest.TestCase):
+
+    def test_console_sink_is_subclass(self):
+        self.assertTrue(issubclass(ConsoleSink, Sink))
+
+    def test_file_sink_is_subclass(self):
+        self.assertTrue(issubclass(FileSink, Sink))
+
+    def test_api_sink_is_subclass(self):
+        self.assertTrue(issubclass(ApiSink, Sink))
+
+    def test_unrelated_sink_is_not_subclass(self):
+        self.assertFalse(issubclass(UnrelatedSink, Sink))
+
+
+class TestsIsInstanceOfSink(unittest.TestCase):
+
+    def test_file_sink_is_instance(self):
+        self.assertTrue(isinstance(FileSink(), Sink))
+
+    def test_console_sink_is_instance(self):
+        self.assertTrue(isinstance(ConsoleSink(), Sink))
+
+    def test_api_sink_is_instance(self):
+        self.assertTrue(isinstance(ApiSink(), Sink))
+
+    def test_unrelated_sink_is_not_instance(self):
+        self.assertFalse(isinstance(UnrelatedSink(), Sink))
+
+
+class TestsMroOfConsoleSink(unittest.TestCase):
+    """ you cannot invoke methods on virtual base classes via the MRO"""
+
+    def test_flush_raises_attribute_error(self):
+        cs = ConsoleSink()
+        with self.assertRaises(AttributeError):
+            cs.flush()
